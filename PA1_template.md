@@ -117,7 +117,7 @@ print(xtable(stepsSummary), type="html", include.rownames=F)
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Tue May 12 18:49:14 2015 -->
+<!-- Tue May 12 18:57:12 2015 -->
 <table border=1>
 <tr> <th> Mean of Ttl Daily Steps </th> <th> Median of Ttl Daily Steps </th>  </tr>
   <tr> <td align="right"> 9354.23 </td> <td align="right"> 10395.00 </td> </tr>
@@ -152,6 +152,10 @@ is 08:35.
 
 ## Imputing missing values
 
-
+```r
+# Calculate the total number of missing rows
+numNA <- nrow(activities[is.na(activities$steps),])
+```
+There are 2304 records where _activities$steps_ = `NA`.
 
 ## Are there differences in activity patterns between weekdays and weekends?

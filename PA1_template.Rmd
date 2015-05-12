@@ -92,7 +92,22 @@ The time interval with the highest mean steps across all days
 is `r maxInterval`.
 
 ## Imputing missing values
+```{r missingvals_num}
+# Calculate the total number of missing rows
+numNA <- nrow(activities[is.na(activities$steps),])
+```
+There are `r numNA` records where _activities$steps_ = `NA`.
 
-
+```{r missingvals_impute}
+# Create a new dataset w/ NA's replaced w/ imputed values.
+# Given the high variability between individual segments for a day, we'll
+# impute using the mean steps for that time interval across all days
+imputed <- activities
+imputed <- imputed %>%
+    mutate(steps=ifelse(is.na(steps),
+                        intervalSteps[intervalSteps$interval == interval,
+                                      "mean.steps"],
+                        steps))
+```
 
 ## Are there differences in activity patterns between weekdays and weekends?

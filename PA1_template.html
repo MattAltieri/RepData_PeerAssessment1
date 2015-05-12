@@ -155,7 +155,7 @@ names(stepsSummary) &lt;- c(&quot;Mean of Ttl Daily Steps&quot;,
 
 print(xtable(stepsSummary), type=&quot;html&quot;, include.rownames=F)</code></pre>
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Tue May 12 18:49:14 2015 -->
+<!-- Tue May 12 18:57:12 2015 -->
 <table border="1">
 <tr>
 <th>
@@ -196,6 +196,9 @@ maxInterval &lt;- as.character(
 </div>
 <div id="imputing-missing-values" class="section level2">
 <h2>Imputing missing values</h2>
+<pre class="r"><code># Calculate the total number of missing rows
+numNA &lt;- nrow(activities[is.na(activities$steps),])</code></pre>
+<p>There are 2304 records where <em>activities$steps</em> = <code>NA</code>.</p>
 </div>
 <div id="are-there-differences-in-activity-patterns-between-weekdays-and-weekends" class="section level2">
 <h2>Are there differences in activity patterns between weekdays and weekends?</h2>
