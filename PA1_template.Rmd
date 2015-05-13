@@ -6,41 +6,30 @@ output:
 ---
 
 ## Set default options and load required libraries
-```{r opts, echo=T}
-suppressWarnings({
-    require(knitr); # needed for opts_chunk
-    require(stringr);
-    require(lubridate);
-    require(dplyr);
-    require(ggplot2);
-    require(xtable);
-})
+```{r opts, echo=T, message=F, warning=F}
+require(knitr) # needed for opts_chunk
+require(stringr)
+require(lubridate)
+require(dplyr)
+require(ggplot2)
+require(xtable)
+
 opts_chunk$set(echo=T)
 ```
 
 ## Loading and preprocessing the data
 ```{r processdata}
+# Read in the data
 activities <- read.csv(unz("activity.zip", "activity.csv"))
-str(activities)
-# Use dplyr to mutate the dataset to add a datetime field combining "date"
-# and "interval"
 
-## First create a character vector of dates
-dates <- as.character(activities$date)
+## Add some formatting to interval
+times <- str_sub(paste0("0000", activities$interval), -4)
+times <- paste(str_sub(times, 1, 2),
+               str_sub(times, 3, 4),
+               sep=":")
+activities$interval <- times
 
-## Now create a character vector build from "interval" in the "hhmmss" format
-## stringr::str_sub() is used for simpler RIGHT substrings
-times <- paste0(str_sub(paste0("0000", activities$interval), -4), "00")
-timestamps <- paste(str_sub(times, 1, 2),
-                    str_sub(times, 3, 4),
-                    sep=":")
-
-## Use dplyr::mutate() and lubridate::ymd_hms() to create a "datetime"" field,
-## and make "interval" a factor
-activities <- activities %>%
-    mutate(datetime = ymd_hms(paste(dates, times, sep=" "))) %>%
-    mutate(interval = timestamps)
-
+# Display the structure of the dataframe
 str(activities)
 ```
 

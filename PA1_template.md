@@ -3,48 +3,30 @@
 ## Set default options and load required libraries
 
 ```r
-suppressWarnings({
-    require(knitr); # needed for opts_chunk
-    require(stringr);
-    require(lubridate);
-    require(dplyr);
-    require(ggplot2);
-    require(xtable);
-})
-```
+require(knitr) # needed for opts_chunk
+require(stringr)
+require(lubridate)
+require(dplyr)
+require(ggplot2)
+require(xtable)
 
-```
-## Loading required package: knitr
-## Loading required package: stringr
-## Loading required package: lubridate
-## Loading required package: dplyr
-## 
-## Attaching package: 'dplyr'
-## 
-## The following objects are masked from 'package:lubridate':
-## 
-##     intersect, setdiff, union
-## 
-## The following object is masked from 'package:stats':
-## 
-##     filter
-## 
-## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union
-## 
-## Loading required package: ggplot2
-## Loading required package: xtable
-```
-
-```r
 opts_chunk$set(echo=T)
 ```
 
 ## Loading and preprocessing the data
 
 ```r
+# Read in the data
 activities <- read.csv(unz("activity.zip", "activity.csv"))
+
+## Add some formatting to interval
+times <- str_sub(paste0("0000", activities$interval), -4)
+times <- paste(str_sub(times, 1, 2),
+               str_sub(times, 3, 4),
+               sep=":")
+activities$interval <- times
+
+# Display the structure of the dataframe
 str(activities)
 ```
 
@@ -52,38 +34,7 @@ str(activities)
 ## 'data.frame':	17568 obs. of  3 variables:
 ##  $ steps   : int  NA NA NA NA NA NA NA NA NA NA ...
 ##  $ date    : Factor w/ 61 levels "2012-10-01","2012-10-02",..: 1 1 1 1 1 1 1 1 1 1 ...
-##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
-```
-
-```r
-# Use dplyr to mutate the dataset to add a datetime field combining "date"
-# and "interval"
-
-## First create a character vector of dates
-dates <- as.character(activities$date)
-
-## Now create a character vector build from "interval" in the "hhmmss" format
-## stringr::str_sub() is used for simpler RIGHT substrings
-times <- paste0(str_sub(paste0("0000", activities$interval), -4), "00")
-timestamps <- paste(str_sub(times, 1, 2),
-                    str_sub(times, 3, 4),
-                    sep=":")
-
-## Use dplyr::mutate() and lubridate::ymd_hms() to create a "datetime"" field,
-## and make "interval" a factor
-activities <- activities %>%
-    mutate(datetime = ymd_hms(paste(dates, times, sep=" "))) %>%
-    mutate(interval = timestamps)
-
-str(activities)
-```
-
-```
-## 'data.frame':	17568 obs. of  4 variables:
-##  $ steps   : int  NA NA NA NA NA NA NA NA NA NA ...
-##  $ date    : Factor w/ 61 levels "2012-10-01","2012-10-02",..: 1 1 1 1 1 1 1 1 1 1 ...
 ##  $ interval: chr  "00:00" "00:05" "00:10" "00:15" ...
-##  $ datetime: POSIXct, format: "2012-10-01 00:00:00" "2012-10-01 00:05:00" ...
 ```
 
 ## What is mean total number of steps taken per day?
@@ -117,7 +68,7 @@ print(xtable(stepsSummary), type="html", include.rownames=F)
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Wed May 13 18:54:08 2015 -->
+<!-- Wed May 13 19:05:40 2015 -->
 <table border=1>
 <tr> <th> Mean of Ttl Daily Steps </th> <th> Median of Ttl Daily Steps </th>  </tr>
   <tr> <td align="right"> 9354.23 </td> <td align="right"> 10395.00 </td> </tr>
@@ -206,7 +157,7 @@ print(xtable(stepsSummary), type="html", include.rownames=F)
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Wed May 13 18:54:09 2015 -->
+<!-- Wed May 13 19:05:41 2015 -->
 <table border=1>
 <tr> <th> Mean of Ttl Daily Steps </th> <th> Median of Ttl Daily Steps </th>  </tr>
   <tr> <td align="right"> 10766.19 </td> <td align="right"> 10766.19 </td> </tr>

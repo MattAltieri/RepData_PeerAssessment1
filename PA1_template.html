@@ -66,70 +66,33 @@ img {
 
 <div id="set-default-options-and-load-required-libraries" class="section level2">
 <h2>Set default options and load required libraries</h2>
-<pre class="r"><code>suppressWarnings({
-    require(knitr); # needed for opts_chunk
-    require(stringr);
-    require(lubridate);
-    require(dplyr);
-    require(ggplot2);
-    require(xtable);
-})</code></pre>
-<pre><code>## Loading required package: knitr
-## Loading required package: stringr
-## Loading required package: lubridate
-## Loading required package: dplyr
-## 
-## Attaching package: 'dplyr'
-## 
-## The following objects are masked from 'package:lubridate':
-## 
-##     intersect, setdiff, union
-## 
-## The following object is masked from 'package:stats':
-## 
-##     filter
-## 
-## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union
-## 
-## Loading required package: ggplot2
-## Loading required package: xtable</code></pre>
-<pre class="r"><code>opts_chunk$set(echo=T)</code></pre>
+<pre class="r"><code>require(knitr) # needed for opts_chunk
+require(stringr)
+require(lubridate)
+require(dplyr)
+require(ggplot2)
+require(xtable)
+
+opts_chunk$set(echo=T)</code></pre>
 </div>
 <div id="loading-and-preprocessing-the-data" class="section level2">
 <h2>Loading and preprocessing the data</h2>
-<pre class="r"><code>activities &lt;- read.csv(unz(&quot;activity.zip&quot;, &quot;activity.csv&quot;))
+<pre class="r"><code># Read in the data
+activities &lt;- read.csv(unz(&quot;activity.zip&quot;, &quot;activity.csv&quot;))
+
+## Add some formatting to interval
+times &lt;- str_sub(paste0(&quot;0000&quot;, activities$interval), -4)
+times &lt;- paste(str_sub(times, 1, 2),
+               str_sub(times, 3, 4),
+               sep=&quot;:&quot;)
+activities$interval &lt;- times
+
+# Display the structure of the dataframe
 str(activities)</code></pre>
 <pre><code>## 'data.frame':    17568 obs. of  3 variables:
 ##  $ steps   : int  NA NA NA NA NA NA NA NA NA NA ...
 ##  $ date    : Factor w/ 61 levels &quot;2012-10-01&quot;,&quot;2012-10-02&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
-##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...</code></pre>
-<pre class="r"><code># Use dplyr to mutate the dataset to add a datetime field combining &quot;date&quot;
-# and &quot;interval&quot;
-
-## First create a character vector of dates
-dates &lt;- as.character(activities$date)
-
-## Now create a character vector build from &quot;interval&quot; in the &quot;hhmmss&quot; format
-## stringr::str_sub() is used for simpler RIGHT substrings
-times &lt;- paste0(str_sub(paste0(&quot;0000&quot;, activities$interval), -4), &quot;00&quot;)
-timestamps &lt;- paste(str_sub(times, 1, 2),
-                    str_sub(times, 3, 4),
-                    sep=&quot;:&quot;)
-
-## Use dplyr::mutate() and lubridate::ymd_hms() to create a &quot;datetime&quot;&quot; field,
-## and make &quot;interval&quot; a factor
-activities &lt;- activities %&gt;%
-    mutate(datetime = ymd_hms(paste(dates, times, sep=&quot; &quot;))) %&gt;%
-    mutate(interval = timestamps)
-
-str(activities)</code></pre>
-<pre><code>## 'data.frame':    17568 obs. of  4 variables:
-##  $ steps   : int  NA NA NA NA NA NA NA NA NA NA ...
-##  $ date    : Factor w/ 61 levels &quot;2012-10-01&quot;,&quot;2012-10-02&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
-##  $ interval: chr  &quot;00:00&quot; &quot;00:05&quot; &quot;00:10&quot; &quot;00:15&quot; ...
-##  $ datetime: POSIXct, format: &quot;2012-10-01 00:00:00&quot; &quot;2012-10-01 00:05:00&quot; ...</code></pre>
+##  $ interval: chr  &quot;00:00&quot; &quot;00:05&quot; &quot;00:10&quot; &quot;00:15&quot; ...</code></pre>
 </div>
 <div id="what-is-mean-total-number-of-steps-taken-per-day" class="section level2">
 <h2>What is mean total number of steps taken per day?</h2>
@@ -155,7 +118,7 @@ names(stepsSummary) &lt;- c(&quot;Mean of Ttl Daily Steps&quot;,
 
 print(xtable(stepsSummary), type=&quot;html&quot;, include.rownames=F)</code></pre>
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Wed May 13 18:54:08 2015 -->
+<!-- Wed May 13 19:05:40 2015 -->
 <table border="1">
 <tr>
 <th>
@@ -231,7 +194,7 @@ names(stepsSummary) &lt;- c(&quot;Mean of Ttl Daily Steps&quot;,
 
 print(xtable(stepsSummary), type=&quot;html&quot;, include.rownames=F)</code></pre>
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Wed May 13 18:54:09 2015 -->
+<!-- Wed May 13 19:05:41 2015 -->
 <table border="1">
 <tr>
 <th>
