@@ -118,7 +118,7 @@ names(stepsSummary) &lt;- c(&quot;Mean of Ttl Daily Steps&quot;,
 
 print(xtable(stepsSummary), type=&quot;html&quot;, include.rownames=F)</code></pre>
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Wed May 13 19:05:40 2015 -->
+<!-- Wed May 13 19:15:23 2015 -->
 <table border="1">
 <tr>
 <th>
@@ -161,12 +161,9 @@ maxInterval &lt;- as.character(
 <h2>Imputing missing values</h2>
 <pre class="r"><code># Calculate the total number of missing rows
 numNA &lt;- nrow(activities[is.na(activities$steps),])</code></pre>
-<p><br /> There are 2304 records where <em>activities$steps</em> = <code>NA</code>.<br /><br /> We will impute spme values for them so that NAs are elimated in the dataset. Given the high variability between individual segments in a given day, we’ll impute values using the mean steps for that time interval across all days.<br /><br /> When an entire day is missing data this means that it will be changed to mimic an average day. <br /></p>
-<pre class="r"><code># Create a new dataset w/ NA's replaced w/ imputed values.
-# Given the high variability between individual segments for a day, we'll
-# impute using the mean steps for that time interval across all days
-#
-# This also avoids the issue of whole days w/ only steps = NA
+<p>There are 2304 records where <em>activities$steps</em> = <code>NA</code>.<br /><br /> We will impute values for observations where <em>steps</em>  <code>NA</code>. Given the high variability between individual segments in a given day, we’ll impute values using the mean steps for that time interval across all days.<br /><br /> As a side-effect, when an entire day is missing data this approach will cause those days to all look like an average day. <br /></p>
+<pre class="r"><code># Create a new dataset w/ NA's replaced w/ imputed values by calculating the
+# mean number of steps for that time interval across all days.
 imputed &lt;- activities
 imputed &lt;- imputed %&gt;%
     group_by(interval) %&gt;%
@@ -194,7 +191,7 @@ names(stepsSummary) &lt;- c(&quot;Mean of Ttl Daily Steps&quot;,
 
 print(xtable(stepsSummary), type=&quot;html&quot;, include.rownames=F)</code></pre>
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Wed May 13 19:05:41 2015 -->
+<!-- Wed May 13 19:15:23 2015 -->
 <table border="1">
 <tr>
 <th>

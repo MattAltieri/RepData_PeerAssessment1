@@ -68,7 +68,7 @@ print(xtable(stepsSummary), type="html", include.rownames=F)
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Wed May 13 19:05:40 2015 -->
+<!-- Wed May 13 19:15:23 2015 -->
 <table border=1>
 <tr> <th> Mean of Ttl Daily Steps </th> <th> Median of Ttl Daily Steps </th>  </tr>
   <tr> <td align="right"> 9354.23 </td> <td align="right"> 10395.00 </td> </tr>
@@ -109,21 +109,17 @@ is 08:35.
 numNA <- nrow(activities[is.na(activities$steps),])
 ```
 
-<br />
 There are 2304 records where _activities$steps_ = `NA`.  
 <br />
-We will impute spme values for them so that NAs are elimated in the dataset. Given the high variability between individual segments in a given day, we'll impute values using the mean steps for that time interval across all days.  
+We will impute values for observations where _steps_ \ `NA`. Given the high variability between individual segments in a given day, we'll impute values using the mean steps for that time interval across all days.  
 <br />
-When an entire day is missing data this means that it will be changed to mimic an average day.
+As a side-effect, when an entire day is missing data this approach will cause those days to all look like an average day.
 <br />
 
 
 ```r
-# Create a new dataset w/ NA's replaced w/ imputed values.
-# Given the high variability between individual segments for a day, we'll
-# impute using the mean steps for that time interval across all days
-#
-# This also avoids the issue of whole days w/ only steps = NA
+# Create a new dataset w/ NA's replaced w/ imputed values by calculating the
+# mean number of steps for that time interval across all days.
 imputed <- activities
 imputed <- imputed %>%
     group_by(interval) %>%
@@ -157,7 +153,7 @@ print(xtable(stepsSummary), type="html", include.rownames=F)
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Wed May 13 19:05:41 2015 -->
+<!-- Wed May 13 19:15:23 2015 -->
 <table border=1>
 <tr> <th> Mean of Ttl Daily Steps </th> <th> Median of Ttl Daily Steps </th>  </tr>
   <tr> <td align="right"> 10766.19 </td> <td align="right"> 10766.19 </td> </tr>

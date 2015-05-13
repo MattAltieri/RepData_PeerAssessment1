@@ -87,20 +87,16 @@ is `r maxInterval`.
 numNA <- nrow(activities[is.na(activities$steps),])
 ```
 
-<br />
 There are `r numNA` records where _activities$steps_ = `NA`.  
 <br />
-We will impute spme values for them so that NAs are elimated in the dataset. Given the high variability between individual segments in a given day, we'll impute values using the mean steps for that time interval across all days.  
+We will impute values for observations where _steps_ \ `NA`. Given the high variability between individual segments in a given day, we'll impute values using the mean steps for that time interval across all days.  
 <br />
-When an entire day is missing data this means that it will be changed to mimic an average day.
+As a side-effect, when an entire day is missing data this approach will cause those days to all look like an average day.
 <br />
 
 ```{r missingvals_impute, results='asis'}
-# Create a new dataset w/ NA's replaced w/ imputed values.
-# Given the high variability between individual segments for a day, we'll
-# impute using the mean steps for that time interval across all days
-#
-# This also avoids the issue of whole days w/ only steps = NA
+# Create a new dataset w/ NA's replaced w/ imputed values by calculating the
+# mean number of steps for that time interval across all days.
 imputed <- activities
 imputed <- imputed %>%
     group_by(interval) %>%
