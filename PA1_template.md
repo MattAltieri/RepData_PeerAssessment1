@@ -117,7 +117,7 @@ print(xtable(stepsSummary), type="html", include.rownames=F)
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Tue May 12 18:57:12 2015 -->
+<!-- Tue May 12 20:25:20 2015 -->
 <table border=1>
 <tr> <th> Mean of Ttl Daily Steps </th> <th> Median of Ttl Daily Steps </th>  </tr>
   <tr> <td align="right"> 9354.23 </td> <td align="right"> 10395.00 </td> </tr>
@@ -147,6 +147,7 @@ maxInterval <- as.character(
     intervalSteps[which.max(intervalSteps$mean.steps),1])
 ```
 
+<br />
 The time interval with the highest mean steps across all days
 is 08:35.
 
@@ -156,6 +157,57 @@ is 08:35.
 # Calculate the total number of missing rows
 numNA <- nrow(activities[is.na(activities$steps),])
 ```
+
+<br />
 There are 2304 records where _activities$steps_ = `NA`.
+<br />
+
+
+```r
+# Create a new dataset w/ NA's replaced w/ imputed values.
+# Given the high variability between individual segments for a day, we'll
+# impute using the mean steps for that time interval across all days
+#
+# This also avoids the issue of whole days w/ only steps = NA
+imputed <- activities
+imputed <- imputed %>%
+    group_by(interval) %>%
+    mutate(steps=ifelse(is.na(steps), mean(steps, na.rm=T), steps))
+
+# Calculate daily total steps using dplyr
+dailyImputed <- imputed %>%
+    group_by(date) %>%
+    summarize(ttl.steps=sum(steps, na.rm=T))
+
+# Show in a histogram
+ggplot(data=dailyImputed, aes(ttl.steps)) +
+    geom_histogram(fill=rgb(31, 119, 180, maxColorValue=255),
+                   col="white") +
+    labs(title="Histogram of Total Daily Steps") +
+    labs(x="Total Steps", y="Count of Days") +
+    theme_bw()
+```
+
+![](PA1_template_files/figure-html/missingvals_impute-1.png) 
+
+```r
+# Calculate mean and median of total daily steps and present in a small table
+meanSteps <- mean(dailyImputed$ttl.steps)
+medianSteps <- median(dailyImputed$ttl.steps)
+stepsSummary <- data.frame(cbind(meanSteps, medianSteps))
+names(stepsSummary) <- c("Mean of Ttl Daily Steps",
+                         "Median of Ttl Daily Steps")
+
+print(xtable(stepsSummary), type="html", include.rownames=F)
+```
+
+<!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
+<!-- Tue May 12 20:25:21 2015 -->
+<table border=1>
+<tr> <th> Mean of Ttl Daily Steps </th> <th> Median of Ttl Daily Steps </th>  </tr>
+  <tr> <td align="right"> 10766.19 </td> <td align="right"> 10766.19 </td> </tr>
+   </table>
+<br />
+Imputing values for the NA's by using the average steps for each interval across all days doesn't yield very useful results. This is because many of the NA records are the result of having no data for an entire day. A more sophisticated approach is probably warranted here.
 
 ## Are there differences in activity patterns between weekdays and weekends?
