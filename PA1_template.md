@@ -117,7 +117,7 @@ print(xtable(stepsSummary), type="html", include.rownames=F)
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Tue May 12 20:25:20 2015 -->
+<!-- Wed May 13 18:54:08 2015 -->
 <table border=1>
 <tr> <th> Mean of Ttl Daily Steps </th> <th> Median of Ttl Daily Steps </th>  </tr>
   <tr> <td align="right"> 9354.23 </td> <td align="right"> 10395.00 </td> </tr>
@@ -159,7 +159,11 @@ numNA <- nrow(activities[is.na(activities$steps),])
 ```
 
 <br />
-There are 2304 records where _activities$steps_ = `NA`.
+There are 2304 records where _activities$steps_ = `NA`.  
+<br />
+We will impute spme values for them so that NAs are elimated in the dataset. Given the high variability between individual segments in a given day, we'll impute values using the mean steps for that time interval across all days.  
+<br />
+When an entire day is missing data this means that it will be changed to mimic an average day.
 <br />
 
 
@@ -202,12 +206,35 @@ print(xtable(stepsSummary), type="html", include.rownames=F)
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Tue May 12 20:25:21 2015 -->
+<!-- Wed May 13 18:54:09 2015 -->
 <table border=1>
 <tr> <th> Mean of Ttl Daily Steps </th> <th> Median of Ttl Daily Steps </th>  </tr>
   <tr> <td align="right"> 10766.19 </td> <td align="right"> 10766.19 </td> </tr>
    </table>
 <br />
-Imputing values for the NA's by using the average steps for each interval across all days doesn't yield very useful results. This is because many of the NA records are the result of having no data for an entire day. A more sophisticated approach is probably warranted here.
+Imputing values for the NA's by using the average steps for each interval across all days has some flaws, notibly that the mean rises to be equal to the median. This is because many of the NA records are the result of having no data for an entire day. A more sophisticated approach may require fewer trade-offs.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+```r
+# Add weekpart variable to distinguish weekend & weekday observations
+weekpart <- as.character(wday(imputed$date, label=T))
+weekpart[weekpart %in% c("Sat", "Sun")] <- "weekend"
+weekpart[!weekpart == "weekend"] <- "weekday"
+imputed$weekpart <- as.factor(weekpart)
+
+# Calculate the mean number of steps by interval across all days/weekparts
+weekpartSteps <- imputed %>%
+    group_by(interval, weekpart) %>%
+    summarize(mean.steps=mean(steps, na.rm=T))
+
+# Plot the time series data in two facets
+ggplot(data=weekpartSteps, aes(x=interval, y=mean.steps, group=1)) +
+    geom_line(col=rgb(214, 39, 40, maxColorValue=255)) +
+    labs(title="Mean Steps by Interval") +
+    labs(x="Time of Day (5 Minute Intervals)", y="Mean Steps") +
+    scale_x_discrete(breaks=weekpartSteps$interval[seq(1, 576, 48)]) +
+    facet_wrap(~ weekpart, ncol=1)
+```
+
+![](PA1_template_files/figure-html/weekends-1.png) 

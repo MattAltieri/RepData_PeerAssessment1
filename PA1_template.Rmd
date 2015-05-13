@@ -99,7 +99,11 @@ numNA <- nrow(activities[is.na(activities$steps),])
 ```
 
 <br />
-There are `r numNA` records where _activities$steps_ = `NA`.
+There are `r numNA` records where _activities$steps_ = `NA`.  
+<br />
+We will impute spme values for them so that NAs are elimated in the dataset. Given the high variability between individual segments in a given day, we'll impute values using the mean steps for that time interval across all days.  
+<br />
+When an entire day is missing data this means that it will be changed to mimic an average day.
 <br />
 
 ```{r missingvals_impute, results='asis'}
@@ -136,6 +140,26 @@ names(stepsSummary) <- c("Mean of Ttl Daily Steps",
 print(xtable(stepsSummary), type="html", include.rownames=F)
 ```
 <br />
-Imputing values for the NA's by using the average steps for each interval across all days doesn't yield very useful results. This is because many of the NA records are the result of having no data for an entire day. A more sophisticated approach is probably warranted here.
+Imputing values for the NA's by using the average steps for each interval across all days has some flaws, notibly that the mean rises to be equal to the median. This is because many of the NA records are the result of having no data for an entire day. A more sophisticated approach may require fewer trade-offs.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+```{r weekends}
+# Add weekpart variable to distinguish weekend & weekday observations
+weekpart <- as.character(wday(imputed$date, label=T))
+weekpart[weekpart %in% c("Sat", "Sun")] <- "weekend"
+weekpart[!weekpart == "weekend"] <- "weekday"
+imputed$weekpart <- as.factor(weekpart)
+
+# Calculate the mean number of steps by interval across all days/weekparts
+weekpartSteps <- imputed %>%
+    group_by(interval, weekpart) %>%
+    summarize(mean.steps=mean(steps, na.rm=T))
+
+# Plot the time series data in two facets
+ggplot(data=weekpartSteps, aes(x=interval, y=mean.steps, group=1)) +
+    geom_line(col=rgb(214, 39, 40, maxColorValue=255)) +
+    labs(title="Mean Steps by Interval") +
+    labs(x="Time of Day (5 Minute Intervals)", y="Mean Steps") +
+    scale_x_discrete(breaks=weekpartSteps$interval[seq(1, 576, 48)]) +
+    facet_wrap(~ weekpart, ncol=1)
+```
